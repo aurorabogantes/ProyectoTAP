@@ -1,0 +1,6 @@
+@ProyectoTAP.SI_HostAddress = http://localhost:5128
+
+GET {{ProyectoTAP.SI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
