@@ -21,7 +21,20 @@ namespace ProyectoTAP.SI.Controllers
             return Ok(airlines);
         }
 
-        
+        [HttpGet("{id}")]
+        public IActionResult GetAirlineById(int id)
+        {
+            var airline = airlines.FirstOrDefault(a => a.Id == id);
+
+            if (airline == null)
+            {
+                return NotFound("Airline not found.");
+            }
+
+            return Ok(airline);
+        }
+
+
         [HttpPost]
         public IActionResult AddAirline([FromBody] Airline airline)
         {
@@ -80,7 +93,55 @@ namespace ProyectoTAP.SI.Controllers
 
             return Ok(result);
         }
+        [HttpPut("{id}")]
+        public IActionResult UpdateAirline(int id, [FromBody] Airline updatedAirline)
+        {
+            if (updatedAirline == null)
+            {
+                return BadRequest("Airline data is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(updatedAirline.Name))
+            {
+                return BadRequest("Airline name is required.");
+            }
+
+            if (string.IsNullOrWhiteSpace(updatedAirline.Phone))
+            {
+                return BadRequest("Airline phone is required.");
+            }
+
+            var existingAirline = airlines.FirstOrDefault(a => a.Id == id);
+
+            if (existingAirline == null)
+            {
+                return NotFound("Airline not found.");
+            }
+
+            bool duplicateExists = airlines.Any(a =>
+                a.Id != id &&
+                (
+                    a.Name.Equals(updatedAirline.Name, StringComparison.OrdinalIgnoreCase) ||
+                    a.Phone.Equals(updatedAirline.Phone, StringComparison.OrdinalIgnoreCase)
+                )
+            );
+
+            if (duplicateExists)
+            {
+                return BadRequest("Another airline with the same name or phone already exists.");
+            }
+
+            existingAirline.Name = updatedAirline.Name;
+            existingAirline.Phone = updatedAirline.Phone;
+
+            return Ok(new
+            {
+                message = "Airline updated successfully.",
+                data = existingAirline
+            });
+        }
     }
+
 
     public class Airline
     {
